@@ -3,6 +3,7 @@ import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
+import { withBlitz } from "../src/blitz-client"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,4 +16,4 @@ function App({ Component, pageProps }: AppProps<{}>) {
   );
 }
 
-export default appWithTranslation(App);
+export default appWithTranslation(withBlitz(App));

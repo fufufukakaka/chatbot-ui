@@ -2,12 +2,16 @@ import { SupportedExportFormats } from '@/types/export';
 import { PluginKey } from '@/types/plugin';
 import { IconFileExport, IconMoon, IconSun } from '@tabler/icons-react';
 import { useTranslation } from 'next-i18next';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Import } from '../Settings/Import';
 import { Key } from '../Settings/Key';
 import { SidebarButton } from '../Sidebar/SidebarButton';
 import { ClearConversations } from './ClearConversations';
 import { PluginKeys } from './PluginKeys';
+import { LoginModal } from '../Login/LoginModal';
+import { getAntiCSRFToken } from "@blitzjs/auth"
+import { BlitzPage } from '@blitzjs/next';
+
 
 interface Props {
   lightMode: 'light' | 'dark';
@@ -25,7 +29,7 @@ interface Props {
   onClearPluginKey: (pluginKey: PluginKey) => void;
 }
 
-export const ChatbarSettings: FC<Props> = ({
+export const ChatbarSettings: BlitzPage<Props> = ({
   lightMode,
   apiKey,
   serverSideApiKeyIsSet,
@@ -41,6 +45,22 @@ export const ChatbarSettings: FC<Props> = ({
   onClearPluginKey,
 }) => {
   const { t } = useTranslation('sidebar');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const onSubmitSignup = async (email: string, password: string) => {
+    const antiCSRFToken = getAntiCSRFToken()
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "anti-csrf": antiCSRFToken,
+      },
+      body: JSON.stringify({ email, password }),
+    })
+    if (res.status === 200) {
+      setShowLoginModal(false)
+    }
+  }
 
   return (
     <div className="flex flex-col items-center space-y-1 border-t border-white/20 pt-1 text-sm">
@@ -75,6 +95,18 @@ export const ChatbarSettings: FC<Props> = ({
           pluginKeys={pluginKeys}
           onPluginKeyChange={onPluginKeyChange}
           onClearPluginKey={onClearPluginKey}
+        />
+      ) : null}
+
+      <SidebarButton
+        text={'Login'}
+        icon={<IconFileExport size={18} />}
+        onClick={() => setShowLoginModal(true)}
+      />
+      {showLoginModal ? (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onSubmitSignup={onSubmitSignup}
         />
       ) : null}
     </div>
