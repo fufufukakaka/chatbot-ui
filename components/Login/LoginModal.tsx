@@ -3,21 +3,15 @@ import { FC, KeyboardEvent, useEffect, useRef, useState } from 'react';
 interface Props {
   onClose: () => void;
   onSubmitSignup: ( userName: string, email: string ) => void;
+  onSubmitLogin: ( userName: string, email: string ) => void;
 }
 
-export const LoginModal: FC<Props> = ({ onClose, onSubmitSignup }) => {
+export const LoginModal: FC<Props> = ({ onClose, onSubmitSignup, onSubmitLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const modalRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
-
-  const handleEnter = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      onSubmitSignup(email, password);
-      onClose();
-    }
-  };
 
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
@@ -45,7 +39,6 @@ export const LoginModal: FC<Props> = ({ onClose, onSubmitSignup }) => {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
-      onKeyDown={handleEnter}
     >
       <div className="fixed inset-0 z-10 overflow-y-auto">
         <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -90,7 +83,18 @@ export const LoginModal: FC<Props> = ({ onClose, onSubmitSignup }) => {
                 onClose();
               }}
             >
-              {"Signup or Login"}
+              {"Signup"}
+            </button>
+
+            <button
+              type="button"
+              className="w-full px-4 py-2 mt-6 border rounded-lg shadow border-neutral-500 text-neutral-900 hover:bg-neutral-100 focus:outline-none dark:border-neutral-800 dark:border-opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-300"
+              onClick={() => {
+                onSubmitLogin(email, password);
+                onClose();
+              }}
+            >
+              {"Login"}
             </button>
           </div>
         </div>

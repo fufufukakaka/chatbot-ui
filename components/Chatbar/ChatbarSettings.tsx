@@ -11,6 +11,7 @@ import { PluginKeys } from './PluginKeys';
 import { LoginModal } from '../Login/LoginModal';
 import { getAntiCSRFToken } from "@blitzjs/auth"
 import { BlitzPage } from '@blitzjs/next';
+import { useSession } from "@blitzjs/auth"
 
 
 interface Props {
@@ -46,10 +47,26 @@ export const ChatbarSettings: BlitzPage<Props> = ({
 }) => {
   const { t } = useTranslation('sidebar');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const session = useSession()
 
   const onSubmitSignup = async (email: string, password: string) => {
     const antiCSRFToken = getAntiCSRFToken()
     const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "anti-csrf": antiCSRFToken,
+      },
+      body: JSON.stringify({ email, password }),
+    })
+    if (res.status === 200) {
+      setShowLoginModal(false)
+    }
+  }
+
+  const onSubmitLogin = async (email: string, password: string) => {
+    const antiCSRFToken = getAntiCSRFToken()
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -98,15 +115,20 @@ export const ChatbarSettings: BlitzPage<Props> = ({
         />
       ) : null}
 
-      <SidebarButton
-        text={'Login'}
-        icon={<IconFileExport size={18} />}
-        onClick={() => setShowLoginModal(true)}
-      />
+      {
+        session.email ? <p>{session.email}</p> : (
+        <SidebarButton
+          text={'Login'}
+          icon={<IconFileExport size={18} />}
+          onClick={() => setShowLoginModal(true)}
+        />
+        )
+      }
       {showLoginModal ? (
         <LoginModal
           onClose={() => setShowLoginModal(false)}
           onSubmitSignup={onSubmitSignup}
+          onSubmitLogin={onSubmitLogin}
         />
       ) : null}
     </div>

@@ -7,7 +7,7 @@ const signup = api(async (req, res, ctx) => {
   const email = req.body.email
   const user = await db.user.create({
     data: { email, hashedPassword },
-    select: { id: true, name: true, email: true, role: true },
+    select: { id: true, email: true },
   })
   await ctx.session.$create({
     userId: user.id,
